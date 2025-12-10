@@ -1,6 +1,6 @@
 """Clean Code Analyzer - CLI tool for analyzing Python code quality."""
 
-from .models import (
+from src.analyzer.models import (
     ArchitectureDetection,
     ClassMetrics,
     CodebaseIndex,
@@ -8,7 +8,7 @@ from .models import (
     FunctionMetrics,
     ImportInfo,
 )
-from .parser import Parser
+from src.analyzer.parser import Parser
 
 __version__ = "0.1.0"
 __all__ = [

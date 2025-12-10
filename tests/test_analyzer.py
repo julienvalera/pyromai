@@ -39,4 +39,3 @@ if __name__ == "__main__":
     test_parser_initialization()
     test_parser_parse_project()
     test_parser_invalid_path()
-    print("All tests passed!")

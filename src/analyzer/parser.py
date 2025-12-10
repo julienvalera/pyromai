@@ -1,12 +1,10 @@
 """Parse Python code and extract metrics using AST."""
 
-from __future__ import annotations
-
 import ast
+import logging
 from pathlib import Path
-from typing import Union
 
-from .models import (
+from src.analyzer.models import (
     ArchitectureDetection,
     ClassMetrics,
     CodebaseIndex,
@@ -14,6 +12,8 @@ from .models import (
     FunctionMetrics,
     ImportInfo,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class FunctionVisitor(ast.NodeVisitor):
@@ -35,7 +35,7 @@ class FunctionVisitor(ast.NodeVisitor):
         self.generic_visit(node)
 
     def _process_function(
-        self, node: Union[ast.FunctionDef, ast.AsyncFunctionDef], is_async: bool = False
+        self, node: ast.FunctionDef | ast.AsyncFunctionDef, is_async: bool = False
     ) -> None:
         """Process a function and extract metrics."""
         # Calculate function length
@@ -180,7 +180,7 @@ class ImportVisitor(ast.NodeVisitor):
 class Parser:
     """Parse Python codebase and extract metrics."""
 
-    def __init__(self, root_path: Union[Path, str]):
+    def __init__(self, root_path: Path | str):
         """Initialize parser with root path."""
         self.root_path = Path(root_path)
         if not self.root_path.is_dir():
@@ -201,7 +201,7 @@ class Parser:
                     total_lines += metrics.length
                     total_imports += metrics.import_count
             except Exception as e:
-                print(f"Warning: Could not parse {py_file}: {e}")
+                logger.warning("Could not parse %s: %s", py_file, e)
 
         # Detect architecture
         architecture = self._detect_architecture(file_metrics)
@@ -227,7 +227,7 @@ class Parser:
             max_file_complexity=max_complexity,
         )
 
-    def _parse_file(self, file_path: Path) -> Union[FileMetrics, None]:
+    def _parse_file(self, file_path: Path) -> FileMetrics | None:
         """Parse a single Python file."""
         try:
             source = file_path.read_text(encoding='utf-8')
