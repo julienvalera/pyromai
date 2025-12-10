@@ -64,5 +64,12 @@ reports/
 # Logs
 *.log
 
-# Poetry
-poetry.lock
+# uv
+uv.lock
+
+# Claude
+CLAUDE.md
+.claude/commands/sync.md
+
+# Others
+screens/dashboard.png

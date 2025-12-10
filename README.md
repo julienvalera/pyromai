@@ -1,8 +1,14 @@
 # Pyromai
 
+<div align="center">
+  <img src="./assets/logo.webp" alt="Pyromai Logo" width="120" height="120">
+</div>
+
 **Intelligent Python code analysis for Clean Code & Clean Architecture — powered by Claude AI**
 
 Detect architectural violations, SOLID principle breaches, and code quality issues with AI-powered contextual analysis. Get structured reports with real examples and actionable recommendations.
+
+![Pyromai Banner](./assets/banner.webp)
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
