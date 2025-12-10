@@ -219,7 +219,7 @@ def test_parser_invalid_path():
   - Règles activées : F, E, W, I, N, UP, B, A, C4, SIM, RUF
   - Line length : 100 caractères
 - **ty** (Astral) : Type checker moderne et ultra-rapide
-  - Configuration defaults (compatible avec Python 3.11+)
+  - Configuration defaults (Python 3.13+)
 - **pytest** + **coverage** : Tests avec seuil minimum de 80%
 
 ### Pré-commit Hooks
@@ -257,8 +257,9 @@ pre-commit run --all-files
 ```
 
 ### CI/CD Automatique
-- GitHub Actions vérifie ruff, ty, pytest à chaque push/PR
-- Matrix : Python 3.11, 3.12, 3.13
+- GitHub Actions vérifie ruff, ty, pytest à chaque push/PR sur main + develop
+- Concurrency : Annule les exécutions redondantes automatiquement
+- Python : 3.13 uniquement (pour PoC)
 - Fail sur coverage < 80% ou linting errors
 
 ## Commandes de développement
@@ -312,7 +313,7 @@ uv publish
 ## Résumé des règles clés
 
 ### Codage
-1. ✅ Python 3.11+ avec fonctionnalités modernes
+1. ✅ Python 3.13+ avec fonctionnalités modernes
 2. ✅ `dependency-groups.dev` au lieu de `tool.uv.dev-dependencies`
 3. ❌ Pas de `from __future__ import annotations`
 4. ✅ Imports absolus uniquement (`from analyzer...`)
