@@ -1,10 +1,23 @@
 [project]
 name = "clean-code-analyzer"
 version = "0.1.0"
-description = "Add your description here"
+description = "CLI tool for analyzing Python code quality using AI"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
-    "plotly>=6.5.0",
-    "streamlit>=1.52.1",
+    "anthropic>=0.7.0",
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+    "pydantic>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "radon>=6.0.0",
+    "tenacity>=8.0.0",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "mypy>=1.0.0",
+    "ruff>=0.1.0",
 ]

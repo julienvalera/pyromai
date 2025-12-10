@@ -69,7 +69,7 @@ uv.lock
 
 # Claude
 CLAUDE.md
-.claude/commands/sync.md
+.claude/commands/**
 
 # Others
 screens/dashboard.png
