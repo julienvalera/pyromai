@@ -88,6 +88,7 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "src/analyzer/__main__.py" = ["B008"]  # Typer pattern uses function calls in argument defaults
+"src/analyzer/parser.py" = ["N802"]  # AST.NodeVisitor method names must match exactly (visit_FunctionDef, etc.)
 "tests/**/*.py" = ["B008"]  # Allow function calls in test fixtures
 
 [tool.ruff.format]

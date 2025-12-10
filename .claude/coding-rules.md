@@ -212,15 +212,66 @@ def test_parser_invalid_path():
         Parser("/nonexistent/path")
 ```
 
+## Qualité du Code
+
+### Linters et Type Checkers
+- **ruff** : Linter moderne avec moderate strictness
+  - Règles activées : F, E, W, I, N, UP, B, A, C4, SIM, RUF
+  - Line length : 100 caractères
+- **ty** (Astral) : Type checker moderne et ultra-rapide
+  - Configuration defaults (compatible avec Python 3.11+)
+- **pytest** + **coverage** : Tests avec seuil minimum de 80%
+
+### Pré-commit Hooks
+- **OBLIGATOIRE** avant chaque commit
+- Auto-format avec ruff
+- Auto-check types avec ty
+- Prévient les commits non-conformes
+
+Installation :
+```bash
+pre-commit install
+```
+
+### Vérification avant commit
+**Cette checklist est OBLIGATOIRE avant chaque `git commit`** :
+
+```bash
+# 1. Linting
+uv run ruff check src/ tests/
+uv run ruff format --check src/ tests/
+
+# 2. Type checking
+uv run ty check src/
+
+# 3. Tests avec coverage
+uv run pytest --cov=src --cov-fail-under=80
+
+# 4. Si tout passe, commit !
+git commit -m "..."
+```
+
+Ou utiliser pre-commit pour automatiser :
+```bash
+pre-commit run --all-files
+```
+
+### CI/CD Automatique
+- GitHub Actions vérifie ruff, ty, pytest à chaque push/PR
+- Matrix : Python 3.11, 3.12, 3.13
+- Fail sur coverage < 80% ou linting errors
+
 ## Commandes de développement
 
 ### Lancement de l'application
 ```bash
-# Lancer l'analyse
-uv run python -m src.analyzer /path/to/project
+# CLI installable
+uv run pyromai /path/to/project
 
-# Avec options
-uv run python -m src.analyzer /path/to/project --output ./reports
+# Avec source en développement
+cd /path/to/pyromai
+uv sync
+uv run pyromai /path/to/project
 ```
 
 ### Tests
@@ -228,31 +279,59 @@ uv run python -m src.analyzer /path/to/project --output ./reports
 # Lancer les tests
 uv run pytest
 
-# Avec coverage
+# Avec coverage (affiche les % par fichier)
 uv run pytest --cov=src
+
+# Générer rapport HTML
+uv run pytest --cov=src --cov-report=html
+# Ouvrir : open htmlcov/index.html
 ```
 
 ### Linting et formatage
 ```bash
-# Type checking
-uv run mypy src/
+# Vérifier tout
+uv run ruff check src/ tests/
+uv run ty check src/
 
-# Linting
-uv run ruff check src/
+# Auto-formatter (modifie les fichiers)
+uv run ruff format src/ tests/
 
-# Formatage
-uv run ruff format src/
+# Pre-commit pour tout d'un coup
+pre-commit run --all-files
+```
+
+### Build et publication
+```bash
+# Build wheel + sdist
+uv build
+
+# Publier sur PyPI (après obtenir des crédentials)
+uv publish
 ```
 
 ## Résumé des règles clés
 
+### Codage
 1. ✅ Python 3.11+ avec fonctionnalités modernes
 2. ✅ `dependency-groups.dev` au lieu de `tool.uv.dev-dependencies`
 3. ❌ Pas de `from __future__ import annotations`
-4. ✅ Imports absolus uniquement (`from src.analyzer...`)
+4. ✅ Imports absolus uniquement (`from analyzer...`)
 5. ❌ Jamais de `print()`, toujours des loggers
 6. ✅ Rich pour les outputs utilisateur élégants
 7. ✅ Messages de log structurés et informatifs
 8. ✅ Type hints complets avec syntaxe moderne
 9. ✅ Docstrings pour toutes les fonctions/classes publiques
-10. ✅ `uv run python -m src.analyzer <path>` pour lancer l'app
+
+### Qualité (OBLIGATOIRE avant chaque commit)
+10. ✅ **ruff check + ruff format** passent (linting)
+11. ✅ **ty check src/** passe (type checking)
+12. ✅ **pytest --cov=src --cov-fail-under=80** passe (tests + 80% coverage min)
+13. ✅ Pre-commit hooks installés et passants : `pre-commit install`
+14. ✅ CLI : `uv run pyromai /path/to/project`
+
+### Avant chaque commit
+```bash
+pre-commit run --all-files  # Auto-fix + check
+uv run pytest --cov=src --cov-fail-under=80  # Tests
+git commit -m "..."  # Si tout passe
+```

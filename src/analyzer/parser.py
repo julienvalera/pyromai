@@ -72,7 +72,7 @@ class FunctionVisitor(ast.NodeVisitor):
         """Calculate cyclomatic complexity (simplified)."""
         complexity = 1
         for child in ast.walk(node):
-            if isinstance(child, (ast.If, ast.While, ast.For, ast.ExceptHandler)):
+            if isinstance(child, ast.If | ast.While | ast.For | ast.ExceptHandler):
                 complexity += 1
             elif isinstance(child, ast.BoolOp):
                 complexity += len(child.values) - 1
@@ -83,7 +83,7 @@ class FunctionVisitor(ast.NodeVisitor):
         """Calculate cognitive complexity (simplified)."""
         complexity = 0
         for child in ast.walk(node):
-            if isinstance(child, (ast.If, ast.While, ast.For, ast.ExceptHandler)):
+            if isinstance(child, ast.If | ast.While | ast.For | ast.ExceptHandler):
                 complexity += 1
         return complexity
 
@@ -102,7 +102,7 @@ class ClassVisitor(ast.NodeVisitor):
 
         # Count methods
         methods_count = sum(
-            1 for item in node.body if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+            1 for item in node.body if isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef)
         )
 
         # Check for __init__
