@@ -56,20 +56,12 @@ dmypy.json
 # Reports (output du tool)
 reports/
 *.json
-*.md
-!CLAUDE.md
-!README.md
-!.claude/commands/*.md
 
 # Logs
 *.log
 
 # uv
 uv.lock
-
-# Claude
-CLAUDE.md
-.claude/commands/**
 
 # Others
 screens/dashboard.png
