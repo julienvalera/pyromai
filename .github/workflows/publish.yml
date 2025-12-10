@@ -1,0 +1,39 @@
+name: Publish to TestPyPI
+
+on:
+  push:
+    tags:
+      - 'v*'  # Déclenche sur chaque push de tag v*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Install dependencies
+        run: |
+          ~/.cargo/bin/uv sync
+
+      - name: Run tests
+        run: ~/.cargo/bin/uv run pytest
+
+      - name: Build distribution
+        run: |
+          ~/.cargo/bin/uv run pip install build
+          ~/.cargo/bin/uv run python -m build
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          password: ${{ secrets.TESTPYPI_API_TOKEN }}

@@ -12,7 +12,7 @@ description = "AI-powered Python code analyzer for Clean Code and Clean Architec
 readme = "README.md"
 requires-python = ">=3.13"
 authors = [
-    {name = "Julien Valera", email = "julien@example.com"},
+    {name = "Julien Valera", email = "julienpierre.valera@gmail.com"},
 ]
 keywords = ["code-analysis", "clean-code", "clean-architecture", "ai", "llm"]
 classifiers = [
