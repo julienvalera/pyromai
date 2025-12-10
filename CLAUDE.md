@@ -1,8 +1,8 @@
-# Clean Code Analyzer - Contexte du projet
+# Pyromai - Contexte du projet
 
 ## Vue d'ensemble
 
-**Clean Code Analyzer** est un outil CLI d'analyse de code Python utilisant l'IA (Claude) pour détecter les violations des principes Clean Code et Clean Architecture. L'objectif est de fournir des recommandations actionnables et pédagogiques, similaires à SonarQube, mais avec une analyse contextuelle basée sur LLM.
+**Pyromai** (anciennement Clean Code Analyzer) est un outil CLI d'analyse de code Python utilisant l'IA (Claude) pour détecter les violations des principes Clean Code et Clean Architecture. L'objectif est de fournir des recommandations actionnables et pédagogiques, similaires à SonarQube, mais avec une analyse contextuelle basée sur LLM.
 
 ## Motivation
 
@@ -16,12 +16,13 @@
 Ce projet suit des règles de codage strictes définies dans [.claude/coding-rules.md](.claude/coding-rules.md).
 
 **Points clés** :
-- Python 3.11+ avec fonctionnalités modernes (pas de `from __future__ import annotations`)
-- Imports absolus uniquement (`from src.analyzer...`)
+- Python 3.13+ avec fonctionnalités modernes (pas de `from __future__ import annotations`)
+- Imports absolus uniquement (`from analyzer...` depuis le package root)
 - Logging structuré avec Rich (jamais de `print()`)
 - Type hints modernes : `list[str]`, `dict[str, int]`, `str | None`
 - Output utilisateur avec Rich (tables, panels, syntax highlighting)
-- Configuration moderne : `dependency-groups.dev` au lieu de `tool.uv.dev-dependencies`
+- Configuration moderne : `dependency-groups.dev` (uv)
+- Linting + formatting : ruff (lint + format) + ty (type checker)
 
 Voir [.claude/coding-rules.md](.claude/coding-rules.md) pour le guide complet.
 
@@ -67,73 +68,92 @@ Voir [.claude/coding-rules.md](.claude/coding-rules.md) pour le guide complet.
 
 ### Structure du projet
 
-✅ **Implémenté** (Phase 1 PoC complétée) :
+✅ **Implémenté** (Phase 1 PoC + Quality Infrastructure) :
 ```
-clean-code-analyzer/
-├── pyproject.toml              # ✅ Dépendances (uv, dependency-groups.dev)
+pyromai/
+├── pyproject.toml              # ✅ Dépendances (uv, dependency-groups.dev, hatchling)
 ├── uv.lock                     # ✅ Lockfile uv (mis à jour)
-├── README.md
-├── .env.example                # ANTHROPIC_API_KEY
-├── .gitignore                  # ✅ Créé et maintenu
+├── .python-version             # ✅ Python 3.13 (default)
+├── README.md                   # ✅ Documentation complète
 ├── CLAUDE.md                   # Ce fichier (contexte du projet)
 │
-├── rules/                      # 🔮 À implémenter Phase 2
-│   ├── clean-architecture/     # Règles Clean Code/Architecture (Phase 2)
-│   │   ├── solid-d.md
-│   │   ├── solid-s.md
-│   │   ├── dry.md
-│   │   ├── naming.md
-│   │   └── complexity.md
-│   ├── security/               # Phase 2
-│   ├── performance/            # Phase 2
-│   ├── aws/                    # Phase 2
-│   └── custom/                 # Phase 2
+├── .env.example                # ✅ Template pour ANTHROPIC_API_KEY
+├── .gitignore                  # ✅ Optimisé pour Python + IDE
+├── .pre-commit-config.yaml     # ✅ Pre-commit hooks (ruff + ty)
 │
-├── src/
-│   ├── __init__.py             # ✅ Package root
-│   └── analyzer/
-│       ├── __init__.py         # ✅ Exports principaux
-│       ├── __main__.py         # ✅ Entry point CLI (avec logging + Rich output)
-│       ├── models.py           # ✅ Dataclasses Pydantic
-│       ├── parser.py           # ✅ AST parser + métriques + architecture detection
-│       ├── agents/
-│       │   ├── __init__.py     # ✅ Package agents
-│       │   ├── base.py         # 🔮 Phase 2
-│       │   └── clean_code.py   # 🔮 Phase 2
-│       ├── selector.py         # 🔮 Phase 2 : Sélection intelligente des fichiers
-│       ├── context.py          # 🔮 Phase 2 : Préparation contexte LLM
-│       ├── llm_client.py       # 🔮 Phase 2 : Client Claude + retry logic
-│       ├── rules_loader.py     # 🔮 Phase 2 : Chargement règles Markdown
-│       └── report.py           # 🔮 Phase 2 : Générateurs JSON + Markdown
+├── .github/
+│   └── workflows/
+│       └── ci.yml              # ✅ GitHub Actions (lint, test, quality gate)
 │
 ├── .claude/
-│   ├── coding-rules.md         # ✅ Règles de codage (Python 3.11+ standards)
+│   ├── coding-rules.md         # ✅ Règles de codage (Python 3.13+ standards)
 │   └── commands/
 │       ├── start-feature.md    # ✅ Commande /start-feature
 │       └── sync.md             # ✅ Commande /sync pour resynchronisation
 │
-└── tests/
-    ├── __init__.py             # ✅ Package tests
-    └── test_analyzer.py        # ✅ Tests unitaires (3/3 passing)
+├── rules/
+│   └── clean-architecture/     # 🔮 À remplir Phase 2
+│       ├── solid-d.md
+│       ├── solid-s.md
+│       ├── dry.md
+│       ├── naming.md
+│       └── complexity.md
+│
+├── src/
+│   ├── __init__.py             # ✅ Package root
+│   └── analyzer/
+│       ├── __init__.py         # ✅ Exports principaux (Parser)
+│       ├── __main__.py         # ✅ Entry point CLI (typer + Rich)
+│       ├── models.py           # ✅ Dataclasses pour AST/metrics
+│       ├── parser.py           # ✅ AST parser + radon metrics + arch detection
+│       ├── agents/
+│       │   └── __init__.py     # 🔮 Phase 2 : Multi-agents
+│       ├── selector.py         # 🔮 Phase 2 : Sélection intelligente
+│       ├── context.py          # 🔮 Phase 2 : Préparation contexte LLM
+│       ├── llm_client.py       # 🔮 Phase 2 : Claude client + retry
+│       ├── rules_loader.py     # 🔮 Phase 2 : Loader règles Markdown
+│       └── report.py           # 🔮 Phase 2 : Report generators
+│
+├── tests/
+│   ├── __init__.py             # ✅ Package tests
+│   └── test_analyzer.py        # ✅ Tests (3/3 passing, 80%+ coverage)
+│
+├── assets/                     # ✅ Logo + banner (webp)
+├── dist/                       # ✅ Build artifacts (wheel + sdist)
+├── htmlcov/                    # ✅ Coverage report HTML
+└── screens/                    # Dashboard screenshot (Phase 3)
 ```
 
 ### Stack technique
 
 **Core** :
-- **Python 3.11+**
-- **anthropic** : Client Claude API
-- **typer** + **rich** : CLI moderne avec UI élégante
-- **pydantic** : Models et validation de données
-- **python-dotenv** : Gestion variables d'environnement
+- **Python 3.13+** (minimum)
+- **anthropic** (>=0.7.0) : Client Claude API
+- **typer** (>=0.9.0) : CLI framework avec click sous-jacent
+- **rich** (>=13.0.0) : Terminal UI (tables, panels, syntax highlighting)
+- **pydantic** (>=2.0.0) : Validation + serialization de données
+- **python-dotenv** (>=1.0.0) : Environment variables management
 
 **Analyse & Parsing** :
-- **ast** (stdlib) : Parsing syntaxique Python
-- **radon** : Métriques de complexité (cyclomatique, cognitive)
-- **tenacity** : Retry logic robuste pour appels API
+- **ast** (stdlib) : Python AST parsing
+- **radon** (>=6.0.0) : Complexity metrics (cyclomatic, cognitive)
+- **tenacity** (>=8.0.0) : Retry logic avec exponential backoff
 
-**Futur (Phase 2)** :
-- **tree-sitter** : Parsing multi-langage avancé
-- **astroid** : Inférence de types statique
+**Quality & Testing** :
+- **pytest** (>=7.0.0) : Unit testing
+- **pytest-asyncio** (>=0.21.0) : Async test support
+- **pytest-cov** (>=5.0.0) : Coverage reporting
+- **ruff** (>=0.1.0) : Lint + format (astral-sh)
+- **ty** (>=0.0.1a1) : Type checker (astral-sh)
+- **pre-commit** (>=3.0.0) : Git hooks automation
+
+**Build & Distribution** :
+- **hatchling** : Python packaging backend
+- **uv** : Fast Python package manager (Rust-based)
+
+**Futur (Phase 2+)** :
+- **tree-sitter** : Multi-language AST parsing
+- **astroid** : Static type inference
 
 ### Workflow d'analyse
 
@@ -345,29 +365,45 @@ uv run python -m src.analyzer /path/to/project \
 
 ## Roadmap
 
-### Phase 1 : PoC Minimal ✅ COMPLÉTÉ
+### Phase 1 : PoC Minimal + Quality Infrastructure ✅ COMPLÉTÉ
 
-**Objectif** : Valider l'approche LLM pour l'analyse de code
+**Objectif** : Valider l'approche LLM pour l'analyse de code + mettre en place l'infrastructure de qualité
 
 **Implémentation** (10-12-2024 - Complété) :
-- ✅ Parser AST avec métriques de complexité (cyclomatique + cognitive)
+
+**PoC Core** :
+- ✅ Parser AST avec métriques de complexité (cyclomatique + cognitive via radon)
 - ✅ Architecture detection (hexagonal/layered patterns via heuristics)
 - ✅ Dataclasses models pour structure de données cohérente
 - ✅ Entry point CLI avec logging structuré (logging + Rich)
-- ✅ Beautiful output avec Rich (tables + panels)
-- ✅ Tests unitaires passants (3/3 with pytest)
-- ✅ Type hints modernes (Python 3.11+ syntax : `|` pour unions)
-- ✅ Imports absolus (meilleure lisibilité et maintenabilité)
-- ✅ Règles de codage formalisées (.claude/coding-rules.md)
+- ✅ Beautiful output avec Rich (tables + panels + syntax highlighting)
+- ✅ Type hints modernes (Python 3.13 syntax : `|` pour unions)
+- ✅ Imports absolus (meilleure lisibilité)
 - ✅ Test sur Olbia backend (1710 fichiers, 586K LOC) - Hexagonal architecture detected 90% confidence
+
+**Quality Infrastructure** :
+- ✅ GitHub Actions CI/CD (lint, test, quality gate)
+- ✅ Pre-commit hooks (ruff lint/format + ty type check)
+- ✅ Ruff configuration (lint + format)
+- ✅ Ty type checker integration
+- ✅ Coverage reporting (80%+ enforcement)
+- ✅ Pytest avec coverage + HTML reports
+- ✅ Build system (hatchling + uv)
+- ✅ Packaging (Python 3.13 entry point setup)
 
 **Code Quality** :
 - ✅ No print() statements (structured logging only)
 - ✅ Modern configuration (dependency-groups.dev)
-- ✅ Type checking passes (mypy: Success)
+- ✅ Type checking avec ty (strict mode)
 - ✅ All tests passing (pytest: 3/3)
+- ✅ Coverage 80%+ (enforced via CI)
+- ✅ Ruff lint rules configured
+- ✅ Coding rules documented (.claude/coding-rules.md)
 
-**Livrable** : CLI fonctionnel capable d'analyser n'importe quel projet Python (AST parsing + metrics + architecture detection)
+**Livrable** :
+- CLI fonctionnel "pyromai" capable d'analyser n'importe quel projet Python
+- Infrastructure de qualité enterprise-ready (CI/CD, pre-commit, testing, coverage)
+- Package distributable (pip install pyromai)
 
 ---
 
@@ -608,6 +644,66 @@ git commit -m "feat: Add AST parser with architecture detection
 **Sans Git** : Pas de problème, Claude analyse directement les fichiers
 
 ## Journal des modifications
+
+### 2024-12-10 - Phase 1 Complétée : Quality Infrastructure & Enterprise Setup (Julien solo)
+
+**Infrastructure de qualité mise en place** (commits récents) :
+- ✅ **GitHub Actions CI/CD** (`fa3f966`) :
+  - Workflow lint (ruff check + format check + ty type check)
+  - Workflow test (pytest avec coverage HTML/XML + codecov upload)
+  - Quality gate (vérification que lint + test réussissent)
+  - Configuration : Python 3.13 only (PoC simplifié)
+- ✅ **Ruff configuration complète** (`.ruff.toml` dans `pyproject.toml`) :
+  - Lint rules : F, E, W, I, N, UP, B, A, C4, SIM, RUF
+  - Format rules : double quotes, space indent
+  - Per-file ignores (Typer pattern, AST methods)
+  - Target version : Python 3.11
+- ✅ **Type checker Ty (Astral)** :
+  - Intégration dans CI/CD
+  - Pre-commit hook pour vérification locale
+  - Configuration dans `pyproject.toml`
+- ✅ **Pre-commit hooks** (`.pre-commit-config.yaml`) :
+  - ruff check + ruff format
+  - ty type checker (src/ only)
+- ✅ **Coverage enforcement** :
+  - pytest-cov avec 80% minimum
+  - HTML reports générés automatiquement
+  - Upload vers Codecov en CI
+- ✅ **Build system** (hatchling) :
+  - Package name : "pyromai"
+  - Entry point : `pyromai = "analyzer.__main__:main"`
+  - Build artifacts générés dans `dist/`
+- ✅ **Python version upgrade** :
+  - Minimum : Python 3.13
+  - `.python-version` file: "3.13"
+  - CI/CD matrix : Python 3.13 only
+  - Coding rules updatées
+
+**Documentation et packaging** :
+- ✅ README.md enrichi avec feature matrix (Pylint/Flake8 vs SonarQube vs Pyromai)
+- ✅ Changement de nom du projet : "Clean Code Analyzer" → **"Pyromai"**
+- ✅ Branding : Logo + banner assets créés
+- ✅ Commits récents bien documentés
+
+**Git history (derniers commits)** :
+- `fa3f966` - ci: Simplify to Python 3.13 only (PoC phase)
+- `bf4ea13` - ci: Fix duplicate workflow runs and restore full matrix testing
+- `4090554` - docs: Update coding rules with quality gates and pre-commit workflow
+- `357dd39` - feat: Add quality tooling and CI/CD infrastructure (v0.1.0)
+- `4e06e78` - refactor: Replace manual CLI argument parsing with Typer
+
+**État actuel du projet** :
+- ✅ CLI entièrement fonctionnel avec typer + rich
+- ✅ Parser AST complet avec métriques radon
+- ✅ Tests : 3/3 passing avec 80%+ coverage
+- ✅ Type checking : ty passe en CI
+- ✅ Linting : ruff passe en CI/CD
+- ✅ Pre-commit hooks : configuré et prêt
+- ✅ Package distributable : wheel + sdist générés
+
+**Prêt pour Phase 2** : Infrastructure solide pour accueillir multi-agents, LLM integration, et features avancées.
+
+---
 
 ### 2024-12-10 - Phase 1 PoC Complétée (Refactoring + Coding Standards)
 
