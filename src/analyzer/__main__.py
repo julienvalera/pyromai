@@ -1,9 +1,9 @@
 """Entry point for Clean Code Analyzer CLI."""
 
 import logging
-import sys
 from pathlib import Path
 
+import typer
 from rich.console import Console
 from rich.logging import RichHandler
 from rich.panel import Panel
@@ -20,20 +20,20 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 console = Console()
 
+app = typer.Typer(
+    name="pyromai",
+    help="Analyze Python projects for Clean Code and Clean Architecture violations",
+    no_args_is_help=True,
+)
 
-def main() -> int:
-    """Main entry point."""
-    if len(sys.argv) < 2:
-        console.print("[yellow]Usage:[/yellow] uv run python -m src.analyzer <project_path>")
-        console.print("[dim]Example:[/dim] uv run python -m src.analyzer /path/to/project")
-        return 1
 
-    project_path = Path(sys.argv[1])
-
-    if not project_path.exists():
-        logger.error("Project path does not exist: %s", project_path)
-        return 1
-
+@app.command()
+def analyze(
+    project_path: Path = typer.Argument(
+        ..., help="Path to the Python project to analyze", exists=True
+    ),
+) -> None:
+    """Analyze a Python project for code quality issues."""
     try:
         logger.info("Analyzing project: %s", project_path)
         parser = Parser(project_path)
@@ -67,11 +67,15 @@ def main() -> int:
             Panel(arch_text, title="🏗️  Architecture Detection", border_style="blue")
         )
 
-        return 0
-    except Exception as e:
+    except Exception:
         logger.exception("Analysis failed")
-        return 1
+        raise typer.Exit(code=1)
+
+
+def main() -> None:
+    """Main entry point."""
+    app()
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
