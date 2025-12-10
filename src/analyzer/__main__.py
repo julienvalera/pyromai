@@ -9,7 +9,7 @@ from rich.logging import RichHandler
 from rich.panel import Panel
 from rich.table import Table
 
-from src.analyzer.parser import Parser
+from analyzer.parser import Parser
 
 # Configure logging
 logging.basicConfig(
@@ -63,13 +63,11 @@ def analyze(
             f"[bold]Confidence:[/bold] {index.architecture.confidence:.1%}\n"
             f"[bold]Layers:[/bold] {layers}"
         )
-        console.print(
-            Panel(arch_text, title="🏗️  Architecture Detection", border_style="blue")
-        )
+        console.print(Panel(arch_text, title="🏗️  Architecture Detection", border_style="blue"))
 
-    except Exception:
+    except Exception as err:
         logger.exception("Analysis failed")
-        raise typer.Exit(code=1)
+        raise typer.Exit(code=1) from err
 
 
 def main() -> None:

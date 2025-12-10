@@ -4,7 +4,7 @@ import ast
 import logging
 from pathlib import Path
 
-from src.analyzer.models import (
+from analyzer.models import (
     ArchitectureDetection,
     ClassMetrics,
     CodebaseIndex,
@@ -22,7 +22,7 @@ class FunctionVisitor(ast.NodeVisitor):
     def __init__(self, source: str):
         self.functions: list = []
         self.source = source
-        self.source_lines = source.split('\n')
+        self.source_lines = source.split("\n")
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         """Visit function definition."""
@@ -83,11 +83,7 @@ class FunctionVisitor(ast.NodeVisitor):
         """Calculate cognitive complexity (simplified)."""
         complexity = 0
         for child in ast.walk(node):
-            if isinstance(child, ast.If):
-                complexity += 1
-            elif isinstance(child, (ast.While, ast.For)):
-                complexity += 1
-            elif isinstance(child, ast.ExceptHandler):
+            if isinstance(child, (ast.If, ast.While, ast.For, ast.ExceptHandler)):
                 complexity += 1
         return complexity
 
@@ -105,12 +101,13 @@ class ClassVisitor(ast.NodeVisitor):
         length = end_lineno - node.lineno + 1
 
         # Count methods
-        methods_count = sum(1 for item in node.body if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)))
+        methods_count = sum(
+            1 for item in node.body if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef))
+        )
 
         # Check for __init__
         has_init = any(
-            isinstance(item, ast.FunctionDef) and item.name == '__init__'
-            for item in node.body
+            isinstance(item, ast.FunctionDef) and item.name == "__init__" for item in node.body
         )
 
         # Extract parent classes
@@ -230,8 +227,8 @@ class Parser:
     def _parse_file(self, file_path: Path) -> FileMetrics | None:
         """Parse a single Python file."""
         try:
-            source = file_path.read_text(encoding='utf-8')
-        except (UnicodeDecodeError, IOError):
+            source = file_path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
             return None
 
         try:
@@ -256,14 +253,14 @@ class Parser:
             isinstance(node, ast.If)
             and isinstance(node.test, ast.Compare)
             and isinstance(node.test.left, ast.Name)
-            and node.test.left.id == '__name__'
+            and node.test.left.id == "__name__"
             for node in ast.walk(tree)
         )
 
         # Calculate metrics
-        lines = source.split('\n')
+        lines = source.split("\n")
         length = len(lines)
-        is_test = '_test' in file_path.name or 'test_' in file_path.name
+        is_test = "_test" in file_path.name or "test_" in file_path.name
 
         # Calculate average complexity
         complexities = [f.cyclomatic_complexity for f in func_visitor.functions]
@@ -293,7 +290,7 @@ class Parser:
             # Skip common exclusions
             if any(
                 part in py_file.parts
-                for part in ['.venv', '.git', '__pycache__', '.tox', 'node_modules']
+                for part in [".venv", ".git", "__pycache__", ".tox", "node_modules"]
             ):
                 continue
             python_files.append(py_file)
@@ -307,29 +304,28 @@ class Parser:
         infrastructure_files = 0
         presentation_files = 0
 
-        for file_path in file_metrics.keys():
+        for file_path in file_metrics:
             parts = file_path.relative_to(self.root_path).parts
-            path_str = str(file_path).lower()
 
-            if any(part in ['domain', 'entities', 'models'] for part in parts):
+            if any(part in ["domain", "entities", "models"] for part in parts):
                 domain_files += 1
-                if 'domain' not in layers_detected:
-                    layers_detected.append('domain')
+                if "domain" not in layers_detected:
+                    layers_detected.append("domain")
 
-            if any(part in ['application', 'use_cases', 'services', 'app'] for part in parts):
+            if any(part in ["application", "use_cases", "services", "app"] for part in parts):
                 application_files += 1
-                if 'application' not in layers_detected:
-                    layers_detected.append('application')
+                if "application" not in layers_detected:
+                    layers_detected.append("application")
 
-            if any(part in ['infrastructure', 'adapters', 'infra'] for part in parts):
+            if any(part in ["infrastructure", "adapters", "infra"] for part in parts):
                 infrastructure_files += 1
-                if 'infrastructure' not in layers_detected:
-                    layers_detected.append('infrastructure')
+                if "infrastructure" not in layers_detected:
+                    layers_detected.append("infrastructure")
 
-            if any(part in ['presentation', 'api', 'handlers'] for part in parts):
+            if any(part in ["presentation", "api", "handlers"] for part in parts):
                 presentation_files += 1
-                if 'presentation' not in layers_detected:
-                    layers_detected.append('presentation')
+                if "presentation" not in layers_detected:
+                    layers_detected.append("presentation")
 
         # Determine pattern
         if domain_files > 0 and application_files > 0 and infrastructure_files > 0:

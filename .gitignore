@@ -47,6 +47,7 @@ htmlcov/
 .hypothesis/
 report.html
 junitreport.xml
+coverage.xml
 
 # Type checking
 .mypy_cache/

@@ -3,9 +3,9 @@
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from src.analyzer import Parser
+from analyzer import Parser
 
 
 def test_parser_initialization():
@@ -30,7 +30,7 @@ def test_parser_invalid_path():
     """Test parser raises error with invalid path."""
     try:
         Parser("/nonexistent/path")
-        assert False, "Should raise ValueError"
+        raise AssertionError("Should raise ValueError")
     except ValueError as e:
         assert "must be a directory" in str(e)
 
