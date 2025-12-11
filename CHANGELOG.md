@@ -41,6 +41,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Correct publish workflow CI reuse syntax (uses directive at job level)
+
 ### Planned for v0.2.0
 - Multi-agent architecture (CleanCodeAgent, SecurityAgent, PerformanceAgent)
 - LLM integration with Claude API
