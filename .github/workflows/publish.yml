@@ -1,0 +1,89 @@
+name: Publish to PyPI
+
+# Workflow triggered on GitHub releases
+# - published: stable release (publish to both TestPyPI + PyPI)
+# - prereleased: pre-release like alpha/beta (publish to TestPyPI only)
+on:
+  release:
+    types: [published, prereleased]
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-latest
+    steps:
+      # Reuse CI workflow to ensure lint, test, and quality gates pass
+      - uses: actions/checkout@v4
+      - name: Validate with CI workflow
+        uses: ./.github/workflows/ci.yml
+
+  publish-test:
+    name: Publish to TestPyPI
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Build distribution
+        run: uv build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          password: ${{ secrets.TESTPYPI_API_TOKEN }}
+
+  publish-prod:
+    name: Publish to PyPI
+    # Only publish to production PyPI when:
+    # - Release is marked as 'published' (not 'prereleased')
+    # - Release is NOT a pre-release (github.event.release.prerelease == false)
+    # This ensures alpha, beta, rc versions only go to TestPyPI
+    if: github.event.action == 'published' && !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    needs: publish-test
+    environment: prod
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Build distribution
+        run: uv build
+
+      - name: Publish to PyPI (Production)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+        # Note: Pre-release versions (0.2.0-alpha.1, 0.2.0-beta.1, etc)
+        # will NOT match the condition above and will NOT be published to production PyPI
+        # They will only be available on TestPyPI

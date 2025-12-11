@@ -47,29 +47,20 @@ htmlcov/
 .hypothesis/
 report.html
 junitreport.xml
+coverage.xml
 
 # Type checking
 .mypy_cache/
+.ruff_cache/
 .dmypy.json
 dmypy.json
 
 # Reports (output du tool)
 reports/
 *.json
-*.md
-!CLAUDE.md
-!README.md
-!.claude/commands/*.md
 
 # Logs
 *.log
-
-# uv
-uv.lock
-
-# Claude
-CLAUDE.md
-.claude/commands/sync.md
 
 # Others
 screens/dashboard.png

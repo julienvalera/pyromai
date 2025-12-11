@@ -1,0 +1,28 @@
+name: Enforce CHANGELOG Updates
+
+# Reminds developers to update CHANGELOG.md when creating PRs
+# Non-blocking: just adds a comment, doesn't fail the check
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+    paths:
+      - 'src/**'
+      - 'pyproject.toml'
+      - '.github/workflows/**'
+
+jobs:
+  changelog:
+    name: Check CHANGELOG Updates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history to detect CHANGELOG changes
+
+      - name: Remind to update CHANGELOG
+        uses: dangoslen/changelog-enforcer@v3
+        with:
+          # Non-blocking: comment only, don't fail
+          skip_on_empty: true
+          # Sections to look for in CHANGELOG
+          changelogPath: CHANGELOG.md

@@ -42,7 +42,7 @@ pip install pyromai
 Or from source with uv:
 
 ```bash
-git clone https://github.com/yourusername/pyromai.git
+git clone https://github.com/julienvalera/pyromai.git
 cd pyromai
 uv sync
 ```
@@ -60,12 +60,11 @@ cp .env.example .env
 ### Analyze Your Project
 
 ```bash
-pyromai analyze /path/to/your/project
+# After installation: pip install pyromai
+pyromai /path/to/your/project
 
-# With options
-pyromai analyze /path/to/project \
-  --output ./reports \
-  --format both  # json, markdown, or both
+# Or from source:
+uv run pyromai /path/to/your/project
 ```
 
 ### Example Output
@@ -262,8 +261,8 @@ pyromai analyze ./src/app --depth 2
 
 This is an early-stage project. We'd love your feedback and contributions!
 
-- Found a bug? [Open an issue](https://github.com/yourusername/pyromai/issues)
-- Have ideas? [Start a discussion](https://github.com/yourusername/pyromai/discussions)
+- Found a bug? [Open an issue](https://github.com/julienvalera/pyromai/issues)
+- Have ideas? [Start a discussion](https://github.com/julienvalera/pyromai/discussions)
 - Want to contribute? See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ---
@@ -286,7 +285,7 @@ MIT License - See [LICENSE](LICENSE) file for details
 ## Contact
 
 - **Author**: Julien Valera
-- **Project**: [GitHub](https://github.com/yourusername/pyromai)
+- **Project**: [GitHub](https://github.com/julienvalera/pyromai)
 
 ---
 
