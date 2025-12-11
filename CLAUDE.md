@@ -68,22 +68,25 @@ Voir [.claude/coding-rules.md](.claude/coding-rules.md) pour le guide complet.
 
 ### Structure du projet
 
-✅ **Implémenté** (Phase 1 PoC + Quality Infrastructure) :
+✅ **Implémenté** (Phase 1 PoC + Quality Infrastructure + Publication) :
 ```
 pyromai/
 ├── pyproject.toml              # ✅ Dépendances (uv, dependency-groups.dev, hatchling)
 ├── uv.lock                     # ✅ Lockfile uv (mis à jour)
 ├── .python-version             # ✅ Python 3.13 (default)
 ├── README.md                   # ✅ Documentation complète
+├── CHANGELOG.md                # ✅ Changelog with roadmap (v0.1.0 - v0.3.0)
 ├── CLAUDE.md                   # Ce fichier (contexte du projet)
 │
 ├── .env.example                # ✅ Template pour ANTHROPIC_API_KEY
 ├── .gitignore                  # ✅ Optimisé pour Python + IDE
 ├── .pre-commit-config.yaml     # ✅ Pre-commit hooks (ruff + ty)
+├── .vscode/                    # ✅ VSCode settings (IDE config)
 │
 ├── .github/
 │   └── workflows/
-│       └── ci.yml              # ✅ GitHub Actions (lint, test, quality gate)
+│       ├── ci.yml              # ✅ GitHub Actions (lint, test, quality gate)
+│       └── publish.yml         # ✅ GitHub Actions (dual publish: TestPyPI + PyPI)
 │
 ├── .claude/
 │   ├── coding-rules.md         # ✅ Règles de codage (Python 3.13+ standards)
@@ -102,26 +105,27 @@ pyromai/
 ├── src/
 │   ├── __init__.py             # ✅ Package root
 │   └── analyzer/
-│       ├── __init__.py         # ✅ Exports principaux (Parser)
+│       ├── __init__.py         # ✅ Exports principaux (Parser, models)
 │       ├── __main__.py         # ✅ Entry point CLI (typer + Rich)
-│       ├── models.py           # ✅ Dataclasses pour AST/metrics
+│       ├── models.py           # ✅ Dataclasses pour AST/metrics (9 classes)
 │       ├── parser.py           # ✅ AST parser + radon metrics + arch detection
 │       ├── agents/
-│       │   └── __init__.py     # 🔮 Phase 2 : Multi-agents
-│       ├── selector.py         # 🔮 Phase 2 : Sélection intelligente
-│       ├── context.py          # 🔮 Phase 2 : Préparation contexte LLM
-│       ├── llm_client.py       # 🔮 Phase 2 : Claude client + retry
-│       ├── rules_loader.py     # 🔮 Phase 2 : Loader règles Markdown
-│       └── report.py           # 🔮 Phase 2 : Report generators
+│       │   └── __init__.py     # 🔮 Phase 2 : Multi-agents (BaseAgent + specialized)
+│       ├── selector.py         # 🔮 Phase 2 : Sélection intelligente (multi-criteria)
+│       ├── context.py          # 🔮 Phase 2 : Préparation contexte LLM (compact + full)
+│       ├── llm_client.py       # 🔮 Phase 2 : Claude client + retry (tenacity)
+│       ├── rules_loader.py     # 🔮 Phase 2 : Loader règles Markdown (extensible)
+│       └── report.py           # 🔮 Phase 2 : Report generators (JSON + Markdown)
 │
 ├── tests/
 │   ├── __init__.py             # ✅ Package tests
 │   └── test_analyzer.py        # ✅ Tests (3/3 passing, 80%+ coverage)
 │
 ├── assets/                     # ✅ Logo + banner (webp)
-├── dist/                       # ✅ Build artifacts (wheel + sdist)
-├── htmlcov/                    # ✅ Coverage report HTML
-└── screens/                    # Dashboard screenshot (Phase 3)
+├── dist/                       # ✅ Build artifacts (wheel + sdist, v0.1.0)
+├── htmlcov/                    # ✅ Coverage report HTML (80%+ coverage)
+├── screens/                    # ✅ Dashboard screenshot (future Phase 3)
+└── main.py                     # ✅ Local test runner script
 ```
 
 ### Stack technique
@@ -325,19 +329,34 @@ def load_rules(rules_dir: Path = Path("rules/default")) -> list[str]:
 - Points forts du code
 - Recommandations générales
 
-## Usage (Phase 1 PoC - Parser fonctionnel)
+## Usage (Phase 1 PoC - v0.1.0 MVP Stable)
 
-✅ **Actuellement implémenté** :
+### Installation
+
+✅ **Via PyPI** (recommended - coming soon after release) :
+```bash
+pip install pyromai
+pyromai /path/to/project
+```
+
+✅ **Depuis le repo** (développement) :
 ```bash
 # Setup
-cd clean-code-analyzer
+cd pyromai
 uv sync                    # Installe les dépendances
 
-# Analyse : Parser CLI (AST + Architecture detection)
-uv run python -m src.analyzer /path/to/project
+# Via entry point CLI
+uv run pyromai /path/to/project
 
-# Exemple : Analyser le projet lui-même
-uv run python -m src.analyzer /Users/julienvalera/Projets/perso/clean-code-analyzer/src
+# Ou via module
+uv run python -m analyzer /path/to/project
+```
+
+### Exemple d'utilisation
+
+```bash
+# Analyser le projet lui-même
+uv run pyromai src/
 
 # Output : Tableau récapitulatif + Architecture detection panel (Rich formatting)
 #
@@ -348,28 +367,30 @@ uv run python -m src.analyzer /Users/julienvalera/Projets/perso/clean-code-analy
 # │ Total Files         │    6 │
 # │ Total Lines         │  548 │
 # │ Average Complexity  │ 9.50 │
+# │ Architecture        │ Unknown/Hexagonal/Layered │
 # └─────────────────────┴──────┘
 ```
 
 🔮 **Phase 2 - Planifié** :
 ```bash
 # Options à venir
-uv run python -m src.analyzer /path/to/project \
+pyromai /path/to/project \
   --output ./reports \
   --format both  # json, markdown, ou both
 
 # Multi-agents spécialisés
-uv run python -m src.analyzer /path/to/project \
-  --agents clean-code,security,performance
+pyromai /path/to/project \
+  --agents clean-code,security,performance \
+  --rules ./custom-rules/
 ```
 
 ## Roadmap
 
-### Phase 1 : PoC Minimal + Quality Infrastructure ✅ COMPLÉTÉ
+### Phase 1 : PoC Minimal + Quality Infrastructure + Publication ✅ COMPLÉTÉ (v0.1.0)
 
-**Objectif** : Valider l'approche LLM pour l'analyse de code + mettre en place l'infrastructure de qualité
+**Objectif** : Valider l'approche LLM pour l'analyse de code + mettre en place l'infrastructure de qualité + distribution package
 
-**Implémentation** (10-12-2024 - Complété) :
+**Implémentation** (10-12-2024 - 11-12-2024 - Complété) :
 
 **PoC Core** :
 - ✅ Parser AST avec métriques de complexité (cyclomatique + cognitive via radon)
@@ -589,14 +610,20 @@ ANTHROPIC_API_KEY=sk-ant-...  # Clé API Claude (obligatoire)
 - ✅ Lock file : `uv.lock` (déterministe)
 - ❌ Rejeté : Poetry (plus lent, moins moderne)
 
-## Critères de succès du PoC
+## Critères de succès du PoC - Phase 1 ✅ TOUS COMPLÉTÉS
 
-1. ✅ Génération de rapport sans erreur sur Olbia backend
-2. ✅ Au moins 5 issues détectées avec exemples pertinents
-3. ✅ Identification correcte de l'architecture hexagonale
-4. ✅ Recommandations actionnables et spécifiques
-5. ✅ Format de sortie clair et lisible (JSON + Markdown)
-6. ✅ Temps d'analyse raisonnable (< 2 minutes pour ~50 fichiers)
+1. ✅ **Parser fonctionnel** - Analyse AST complète avec métriques
+2. ✅ **Architecture detection** - Détection hexagonal/layered/unknown avec heuristics
+3. ✅ **Metrics objectives** - Complexité cyclomatique + cognitive (radon)
+4. ✅ **CLI beautiful** - Rich tables, panels, syntax highlighting
+5. ✅ **Tests complets** - 3/3 passing avec 80%+ coverage enforcement
+6. ✅ **Type safety** - ty type checker strictement intégré
+7. ✅ **CI/CD mature** - GitHub Actions (lint, test, quality gates)
+8. ✅ **Coding standards** - Ruff + pre-commit hooks + modern Python 3.13
+9. ✅ **Distribution ready** - Wheel + sdist, entry point configuré, PyPI-ready
+10. ✅ **Documentation** - README, CLAUDE.md, CHANGELOG, coding-rules
+
+**Phase 1 est en production** : v0.1.0 est une MVP stable et distributable
 
 ## Synchronisation du contexte
 
@@ -644,6 +671,42 @@ git commit -m "feat: Add AST parser with architecture detection
 **Sans Git** : Pas de problème, Claude analyse directement les fichiers
 
 ## Journal des modifications
+
+### 2024-12-11 - Phase 1 Finalisée : Publication et Distribution Package (Julien solo)
+
+**Publication workflow implémenté et testé** :
+- ✅ **GitHub Actions Publish Workflow** (`publish.yml` créé) :
+  - Dual publishing : TestPyPI (toutes les releases) + PyPI (releases stables uniquement)
+  - CI/CD validation préalable (réutilisation du workflow CI)
+  - Upload artifacts du build (wheel + sdist)
+  - Déploiement conditionnel basé sur type de release (prerelease vs stable)
+  - Gestion des secrets : TESTPYPI_API_TOKEN et PYPI_API_TOKEN
+- ✅ **Build system finalisé** :
+  - `uv build` génère wheel et sdist
+  - Artifacts générés dans `/dist/` (pyromai-0.1.0-py3-none-any.whl + source)
+  - Entry point CLI configuré : `pyromai = "analyzer.__main__:main"`
+- ✅ **CHANGELOG.md enrichi** :
+  - Documentation complète de v0.1.0 (15 features + 5 infrastructure items)
+  - Plans pour v0.2.0 (multi-agents, LLM integration)
+  - Plans pour v0.3.0 (caching, parallélization, extensions)
+- ✅ **Version 0.1.0 officialisée** :
+  - Taggée en Git avec release notes complètes
+  - Package prêt pour PyPI (nom, description, keywords, classifiers)
+  - Métadonnées complètes (author, license, homepage, repository, issues)
+
+**État production** :
+- Package distributable via PyPI : `pip install pyromai`
+- Versioning sémantique établi (0.1.0 = MVP stable)
+- CI/CD pipeline complet pour future releases
+- Documentation de roadmap multiversion visible aux utilisateurs
+
+**Commits effectués** :
+- `2c09e8e` - fix: Use uv build instead of manual build installation
+- `a7d2790` - feat: Implement Phase 1 publication workflow with dual publishing
+- `075e433` - fix: Correct uv installation in publish workflow
+- `c2343d3` - chore: Add publication workflow and changelog for v0.1.0
+
+---
 
 ### 2024-12-10 - Phase 1 Complétée : Quality Infrastructure & Enterprise Setup (Julien solo)
 
