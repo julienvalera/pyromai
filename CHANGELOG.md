@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Testing**: Comprehensive test suite with pytest and 80%+ coverage enforcement
 - **Type Safety**: Full type hints with ty type checker integration
 - **Package Distribution**: Wheel and source distribution builds via hatchling
+- **Version Lifecycle Management**: Documented SemVer strategy with ZeroVer (0.x.x) for PoC phase
+- **Publishing Workflow**: Enhanced dual-publish to TestPyPI and PyPI with branch validation
+- **CHANGELOG Enforcement**: GitHub Action reminder for CHANGELOG updates (non-blocking)
 
 ### Documentation
 - Complete README with feature matrix and usage examples

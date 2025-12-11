@@ -51,6 +51,7 @@ coverage.xml
 
 # Type checking
 .mypy_cache/
+.ruff_cache/
 .dmypy.json
 dmypy.json
 
@@ -60,9 +61,6 @@ reports/
 
 # Logs
 *.log
-
-# uv
-uv.lock
 
 # Others
 screens/dashboard.png

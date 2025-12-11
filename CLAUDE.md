@@ -506,6 +506,109 @@ Concevoir pour l'évolution :
 - Adapter pattern pour autres LLM providers
 - Format de règles extensible (Markdown → DSL custom)
 
+## Version Lifecycle Management
+
+### Stratégie de Versioning
+
+**Philosophie : Keep It Simple**
+
+Pyromai suit **Semantic Versioning (SemVer)** avec **ZeroVer** (0.x.x) pour la phase PoC. Basé sur recherche de projets Python populaires (Ruff, FastAPI, Pytest, Typer), la recommandation est : **don't over-engineer, add automation when pain points emerge.**
+
+**Approche recommandée par projets de référence :**
+- **Ruff** (Astral, bien financé) → CHANGELOG manuel + scripts simples
+- **FastAPI/Typer** → Commencé manuel, ajouté automation au besoin
+- **Pytest** → Towncrier (mais 100+ contributeurs)
+
+**Versioning Convention :**
+
+- **PoC/MVP Phase** (current: `0.x.x`)
+  - Exemple : `0.1.0`, `0.2.0`, `0.3.0`
+  - Breaking changes OK en MINOR bumps (SemVer 0.x permet)
+  - Publish sur PyPI (stable)
+
+- **Pre-releases** (feature branches: `0.x.x-{alpha|beta|rc}.N`)
+  - Exemple : `0.2.0-alpha.1`, `0.2.0-beta.1`, `0.2.0-rc.1`
+  - Publish sur **TestPyPI uniquement** (not production)
+
+- **Stable API** (future: `1.0.0+`)
+  - Strict SemVer : MAJOR.MINOR.PATCH
+  - MAJOR = breaking change, MINOR = feature, PATCH = bugfix
+  - Publish sur PyPI (production)
+
+### Git Workflow (Workflow correct)
+
+**Règle d'Or : Ne JAMAIS tagger les feature branches, toujours merger sur main d'abord**
+
+**Correct Workflow :**
+```
+feat/new-feature (development on feature branch)
+  ↓ (optional: tag 0.2.0-alpha.1 for TestPyPI testing)
+  ↓ (PR quand ready)
+main (merge PR)
+  ↓ (tag v0.x.x for stable release - CORRECT)
+  ↓ (GitHub Actions publishes to PyPI + TestPyPI)
+```
+
+**❌ What NOT to do :**
+- Ne jamais tagger une feature branch en pense qu'elle est "released"
+- Un tag devrait toujours pointer une branche stable (main)
+
+### CHANGELOG Management
+
+**Approche : Manual + Optional GitHub Action Reminder**
+
+**Pourquoi manual pour le PoC :**
+- Équipe petite (1-2 developers)
+- Haute qualité, curated entries
+- Pas de merge conflicts (aucun outil nécessaire)
+- Transparent et simple
+
+**Ajouter automation quand pain points émergent :**
+
+**Phase 2** (v0.3.0+) : Towncrier si
+- 3+ contributeurs réguliers
+- CHANGELOG merge conflicts
+- 10+ PRs par release
+
+**Phase 3** (v1.0.0+) : python-semantic-release si
+- API stable (1.0.0+)
+- Releases fréquentes (weekly+)
+- Zéro travail manual
+
+### Release Process
+
+**Checklist pour chaque release stable :**
+
+1. Feature développée et testée sur branche `feat/*`
+2. (Optionnel) Pre-releases testées sur TestPyPI
+3. PR créée et reviewée
+4. PR mergée sur `main`
+5. `CHANGELOG.md` mis à jour avec section `[X.Y.Z]` datée
+6. `pyproject.toml` version bumpée à `X.Y.Z` (sans suffixes)
+7. Commit release : `git commit -m "chore: Prepare release vX.Y.Z"`
+8. Tag créé : `git tag vX.Y.Z && git push origin vX.Y.Z`
+9. GitHub Release créée (SANS flag pre-release)
+10. CI passe (vert ✅)
+11. Package publié sur PyPI automatiquement
+12. Tester installation : `pip install pyromai==X.Y.Z`
+
+### Publishing Workflow
+
+**TestPyPI (tous les releases) :**
+- Déclenché : tout GitHub release (published + prerelease)
+- Job : `publish-test`
+- Index : https://test.pypi.org/
+
+**PyPI Production (stable uniquement) :**
+- Déclenché : GitHub release avec `published` (pas `prerelease`)
+- Job : `publish-prod`
+- Index : https://pypi.org/ (public)
+
+**Branch Protection :**
+- Require PR (no direct commits to main)
+- Require CI status checks pass
+- Optional : Require 1 approval (when 2+ devs)
+
 ## Variables d'environnement
 
 ```bash

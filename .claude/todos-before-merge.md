@@ -1,0 +1,4 @@
+Voici la liste des choses à terminer avant de pouvoir merger la branche courante (feat/parser-ast-complexity-metrics) sur la branche principale (main) :
+- [ ] Réfléchir ensemble à commencer gérer le cycle de vie des versions en sachant qu'on est sur un PoC donc pas besoin de faire quelque chose de compliqué. On peut imaginer publier une version alpha ou de pre-release sur une branche de feature (qu'en penses-tu ?) et ensuite publier la version finale sur PyPi une fois sur la branche main (uniquement lorsqu'on publie un nouveau tag et une nouvelle release manuellemet, qu'en penses-tu ?)
+- [ ] Générer automatiquement le CHANGELOG.md de manière à ce que la gestion du cycle de vie de la librairie soit la plus smooth possible à l'échelle d'une équipe de contributeurs et qu'un maximum de choses soient automatisés.
+- [ ] Vois-tu d'autres choses ?
