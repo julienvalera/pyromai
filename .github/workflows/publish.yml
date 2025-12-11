@@ -9,8 +9,30 @@ on:
 
 jobs:
   validate:
-    name: Validate
-    uses: ./.github/workflows/ci.yml
+    name: Validate (Lint & Test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run linting
+        run: uv run ruff check .
+
+      - name: Run type checking
+        run: uv run ty src/
+
+      - name: Run tests
+        run: uv run pytest
 
   publish-test:
     name: Publish to TestPyPI
@@ -47,7 +69,7 @@ jobs:
           password: ${{ secrets.TESTPYPI_API_TOKEN }}
 
   publish-prod:
-    name: Publish to PyPI
+    name: Publish to PyPI (Production)
     # Only publish to production PyPI when:
     # - Release is marked as 'published' (not 'prereleased')
     # - Release is NOT a pre-release (github.event.release.prerelease == false)
