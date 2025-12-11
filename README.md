@@ -185,13 +185,98 @@ pyromai/
 
 ---
 
+## Release & Deployment
+
+### Automated Releases with semantic-release
+
+Pyromai uses **semantic-release** for fully automated versioning, tagging, and publishing. Just follow Conventional Commits, and releases happen automatically!
+
+#### Quick Setup
+
+1. **Create GitHub Token**
+   ```bash
+   # Go to: https://github.com/settings/tokens/new
+   # Scopes: repo + workflow
+   # Add to GitHub secrets as: GH_TOKEN
+   ```
+
+2. **Create PyPI Tokens**
+   ```bash
+   # PyPI: https://pypi.org/manage/account/tokens/ → PYPI_API_TOKEN
+   # TestPyPI: https://test.pypi.org/manage/account/tokens/ → TESTPYPI_API_TOKEN
+   # Add both to GitHub secrets
+   ```
+
+3. **Add secrets via GitHub CLI**
+   ```bash
+   gh secret set GH_TOKEN --repo julienvalera/pyromai --body "ghp_..."
+   gh secret set PYPI_API_TOKEN --repo julienvalera/pyromai --body "pypi-..."
+   gh secret set TESTPYPI_API_TOKEN --repo julienvalera/pyromai --body "pypi-..."
+   ```
+
+#### Making a Release
+
+Just follow **Conventional Commits** on main branch:
+
+```bash
+# Patch release (0.1.0 → 0.1.1)
+git commit -m "fix: Correct parser bug"
+
+# Minor release (0.1.0 → 0.2.0)
+git commit -m "feat: Add new analysis rule"
+
+# Major release (0.1.0 → 1.0.0)
+git commit -m "feat!: Redesign CLI interface"
+```
+
+Push to main:
+```bash
+git push origin main
+```
+
+GitHub Actions will:
+1. ✅ Run quality checks (lint, test, coverage)
+2. ✅ Detect version bump from commits
+3. ✅ Update `pyproject.toml` version
+4. ✅ Update `CHANGELOG.md`
+5. ✅ Create git commit + tag
+6. ✅ Build package (wheel + sdist)
+7. ✅ Publish to TestPyPI
+8. ✅ Publish to PyPI (production)
+9. ✅ Create GitHub Release
+
+#### Manual Release (Local)
+
+For testing before pushing:
+
+```bash
+# Check next version (no changes)
+uv run semantic-release version --noop
+
+# Make actual release (requires GH_TOKEN)
+export GH_TOKEN="ghp_..."
+uv run semantic-release version --push
+```
+
+#### Commit Message Format
+
+- **feat**: New feature → MINOR bump
+- **fix**: Bug fix → PATCH bump
+- **perf**: Performance → PATCH bump
+- **docs**, **test**, **ci**, **chore**: No version bump
+- **BREAKING CHANGE**: → MAJOR bump
+
+---
+
 ## Roadmap
 
-### Phase 1: PoC (In Progress)
+### Phase 1: PoC (✅ Completed)
 - [x] Basic parser (AST + directory structure)
 - [x] 5 hardcoded rules
 - [x] Claude integration
 - [x] JSON + Markdown output
+- [x] Quality infrastructure (CI/CD, pre-commit, tests)
+- [x] Automated releases with semantic-release
 
 ### Phase 2: MVP (Q1 2025)
 - [ ] Objective metrics (complexity, coupling, cohesion)
