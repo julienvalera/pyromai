@@ -10,12 +10,7 @@ on:
 jobs:
   validate:
     name: Validate
-    runs-on: ubuntu-latest
-    steps:
-      # Reuse CI workflow to ensure lint, test, and quality gates pass
-      - uses: actions/checkout@v4
-      - name: Validate with CI workflow
-        uses: ./.github/workflows/ci.yml
+    uses: ./.github/workflows/ci.yml
 
   publish-test:
     name: Publish to TestPyPI
