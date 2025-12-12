@@ -1,8 +1,6 @@
-name: CI
+name: PR CI
 
 on:
-  push:
-    branches: ["main", "develop"]
   pull_request:
     branches: ["main", "develop"]
 
@@ -19,7 +17,7 @@ jobs:
         python-version: ["3.13"]
     steps:
       - uses: actions/checkout@v4
-    
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -91,7 +89,7 @@ jobs:
       - name: Check job statuses
         run: |
           if [[ "${{ needs.lint.result }}" == "failure" || "${{ needs.test.result }}" == "failure" ]]; then
-            echo "❌ CI failed: linting or testing failed"
+            echo "❌ PR validation failed: linting or testing failed"
             exit 1
           fi
-          echo "✅ All checks passed!"
+          echo "✅ All PR checks passed!"

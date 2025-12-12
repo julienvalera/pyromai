@@ -13,8 +13,54 @@ permissions:
   contents: read
 
 jobs:
-  release:
+  validate:
+    name: Validate (Lint & Test)
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+        with:
+          version: "latest"
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run ruff (lint)
+        run: uv run ruff check src/ tests/
+
+      - name: Run ruff (format check)
+        run: uv run ruff format --check src/ tests/
+
+      - name: Run ty (type check)
+        run: uv run ty check src/
+
+      - name: Run tests with coverage
+        run: uv run pytest --cov=src --cov-report=xml --cov-report=term-missing
+
+      - name: Check coverage threshold
+        run: |
+          coverage_percent=$(grep -oP 'coverage.*>\K[0-9.]+' coverage.xml | head -1)
+          echo "Coverage: ${coverage_percent}%"
+          if (( $(echo "$coverage_percent < 80" | bc -l) )); then
+            echo "❌ Coverage below 80% threshold"
+            exit 1
+          fi
+          echo "✅ Coverage check passed!"
+
+  release:
+    name: Release & Publish
+    runs-on: ubuntu-latest
+    needs: validate
     concurrency:
       group: ${{ github.workflow }}-release-${{ github.ref_name }}
       cancel-in-progress: false
@@ -64,7 +110,7 @@ jobs:
 
     outputs:
       released: ${{ steps.release.outputs.released || 'false' }}
-  
+
   deploy:
     # 1. Separate out the deploy step from the publish step to run each step at
     #    the least amount of token privilege
@@ -94,3 +140,9 @@ jobs:
         with:
           repository-url: https://test.pypi.org/legacy/
           password: ${{ secrets.TESTPYPI_API_TOKEN }}
+
+      # Publish to PyPI (production)
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
