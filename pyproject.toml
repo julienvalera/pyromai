@@ -155,7 +155,6 @@ commit_parser = "conventional"
 logging_use_named_masks = false
 major_on_zero = false
 allow_zero_version = true
-repo_dir = "/Users/julienvalera/Projets/perso/pyromai"
 no_git_verify = false
 tag_format = "v{version}"
 add_partial_tags = false
